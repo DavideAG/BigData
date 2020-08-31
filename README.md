@@ -3,6 +3,10 @@
 **Professor:** Paolo Garza  
 **Year:** 2019-2020
 
+
+
+**Disclaimer:** This set of notes covers only the part of the course related to Hadoop map-reduce block. You can find spark exercises in the exam folder.
+
 ---
 <p><img align="right" src="./hadoop.png" width="150px"/></p>
 <p></p>
@@ -698,3 +702,4 @@ just emits the solution relative to one of the 2 tables
 
 ## Relational Algebra Operators
 
+This part of the notes is not complete.
