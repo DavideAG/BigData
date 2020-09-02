@@ -1,0 +1,131 @@
+Exam 02-07-2020
+
+****	Part 1
+
+Q1 -> B	CORRECT
+patches2018.txt = 513MB
+patches2019.txt = 515MB
+HDFS block = 512MB
+2 reducers
+# mappers = 513/512 + 515/512 = 2 + 2 = 4
+
+Q2 -> A	CORRECT
+
+
+****	Part2
+
+Servers.txt		List of servers
+	SID, Model
+
+PatchedServers.txt	List of patched servers
+	SID, PID, Date
+
+
+***	MapReduce application
+**	servers which at least 30 patches in 2017 or in 2018
+
+protected void map(LongWritable key,
+	Text value,
+	Context context)
+{
+	String[] fields = value.toString().split(",");
+	String SID = fields[0];
+	String date = fields[2];
+
+	if (date.starsWith("2017"))
+	{
+		context.write(new Text(SID), new IntWritable(0));
+	}
+
+	if (date.startsWith("2018"))
+	{
+		context.write(new Text(SID), new IntWritable(1));
+	}
+}
+
+protected void reduce(Text key,
+	Iterable<IntWritable> values,
+	Context context)
+{
+	int occurrences17 = 0;
+	int occurrences18 = 0;
+
+	for (IntWritable val : values)
+	{
+		int dateFlag = val.get();
+
+		if (dateFlag == 0)
+		{
+			occurrences17 += 1;
+		} else {
+			occurrences18 += 1;
+		}
+
+		if ((occurrences17 > 30) || (occurrences18 > 30))
+		{
+			context.write(key, NullWrtiable.get());
+		}
+	}
+}
+
+The number of instances of the reducer class of the first Job is >= 1
+One single job is needed for this MapReduce application
+---
+
+****	Spark and RDDs
+
+Servers.txt		List of servers
+	SID, Model
+
+PatchedServers.txt	List of patched servers
+	SID, PID, Date
+
+***	Servers with a high decrease of the number of applied patches in the last two years
+
+SID e model dei server the hanno:
+numero di patch applicate nel 2019 < 0.5 * numero di patch applicate nel 2018
+
+FROM PatchedServers.txt
+textFile(PatchedServers.txt)
+filter(year = 2018 || 2019)
+mapToPair	-> SID, (Patch18 [0/1], Patch19 [0/1])
+reduceByKey	-> SID, (sumPatch18, sumPatch19)
+filter		-> SID, same value only where
+			sumTotPatchesApplied19 < 0.5 * sumTotPatchesApplied18
+		The result is X
+
+FROM Servers.txt
+read(Servers.txt)
+mapToPair	-> SID, model
+		The result is Y
+
+subtractByKey	-> K = X.subtractByKey(Y)
+			otherwise
+			Q = X.join(Y)
+mapValues	-> prendo solo ._2() che è il model in Y
+saveAsTextFile(outputA)
+
+
+***	Servers with at most one applied patch per date
+Servers.txt		List of servers
+	SID, Model
+
+PatchedServers.txt	List of patched servers
+	SID, PID, Date
+
+read(PatchedServers.txt)
+mapToPair	-> SID_date, 1
+reduceByKey	-> SID_date, totPatchesPerDate
+filter		-> SID_date, totPatchesPerDate > 1
+mapToPair	-> SID, ""
+			The result is T
+subtractByKey	-> Y.subtractByKey(T) 
+			The result is Z
+save
+
+In order to prints on the standard output of the driver the number
+of distinct models:
+Z.values().distinct().count()
+
+
+
