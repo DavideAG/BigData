@@ -91,14 +91,8 @@ protected void cleanup(Context context) {
 // flatMapToPair	-> stockId_date, currVariation
 // 			-> stockId_date-1, currVariation
 // groupByKey		-> stockId_date, Iterable<variations>
-// 	DEVO ACCERTARMI CHE CI SIANO ALMENO DUE GIORNI CONSECUTIVI!!!! MANNAGGIA
-// filter		-> stockId_date, abs(first-second) <= 0.1
+// 	DEVO ACCERTARMI CHE CI SIANO ALMENO DUE GIORNI CONSECUTIVI!!!! 
+// filter		-> stockId_date, abs(first-second) <= 0.1 and count if there
+// 			   are 2 occurrences
 // saveAsTextFile
-//
-// reduceByKey		-> stockId_date, is_stable [0/1]  (1 if abs(first-second) <= 0.1)
-// filter		-> is_stable == 1
-// saveAsTextFile
-//
-//
-// GOAL		stockId_date, (dailyPriceVariationFirstDate, dailyPriceVariationSecondDate)
 
